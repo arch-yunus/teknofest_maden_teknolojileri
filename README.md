@@ -1,296 +1,311 @@
-
 <div align="center">
 
 # ⛏️ DeepMine AI
-### Otonom Maden Analiz ve Ajan Tabanlı Planlama Sistemi
-
-<img src="docs/images/banner.png" alt="DeepMine AI Banner" width="100%">
+### GPS-Free Otonom Navigasyon | Hibrit GPR-NN Rezerv Tahmini | Akıllı İSG Sistemi
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![ROS 2 Humble](https://img.shields.io/badge/ROS%202-Humble-red.svg)](https://docs.ros.org/en/humble/)
 [![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)](https://www.tensorflow.org/)
-[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-Latest-blue.svg)](https://scikit-learn.org/)
-[![Status](https://img.shields.io/badge/Status-Development-green.svg)]()
+[![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-1.3+-blue.svg)](https://scikit-learn.org/)
+[![TEKNOFEST 2026](https://img.shields.io/badge/TEKNOFEST-2026%20Maden-darkgreen.svg)](https://teknofest.org)
+[![Status](https://img.shields.io/badge/Status-Active%20Development-brightgreen.svg)]()
 
 <br />
 
-**Milli Teknoloji Hamlesi İçin Yerli ve Otonom Çözümler**
+**Tema 4.2 · Otonom Madencilik, Yapay Zeka Entegrasyonu ve İş Güvenliği**
 
-[Proje Vizyonu](#-proje-vizyonu) •
-[Özellikler](#-teknik-özellikler--modüller) •
-[Derin Teknik Detaylar](#-derin-teknik-detaylar) •
-[Kurulum](#-kurulum) •
-[Geliştirici](#-geliştirici-hakkında)
+[Mimari](#-sistem-mimarisi) •
+[Modüller](#-modüller) •
+[Matematiksel Temel](#-matematiksel-temel) •
+[Kurulum](#-kurulum-ve-çalıştırma) •
+[TEKNOFEST Yol Haritası](#-teknofest-2026-yol-haritası)
 
 </div>
 
 ---
 
-## 🚀 Proje Vizyonu
+## 🌍 Proje Vizyonu
 
-**DeepMine AI**, madencilik sektöründe hammadde ihracatçısı kimliğinden **uç ürün teknolojisi üreten bir öncüye** dönüşme vizyonuyla geliştirilmiştir. 
+**DeepMine AI**, TEKNOFEST 2026 Maden Teknolojileri Yarışması şartnamesinin **Tema 4.2: Otonom Madencilik, Yapay Zeka Entegrasyonu ve İş Güvenliği** kapsamında geliştirilen bütünleşik bir yerli teknoloji platformudur.
 
-> "Geleceğin madenciliği yerin altında değil, verinin derinliklerinde başlar."
+Proje; üç temel şartname alt başlığını tam olarak karşılar:
 
-Bu proje; **Multi-Agent Systems (MAS)**, **Bilgisayar Görüsü**, ve **Otonom Navigasyon** yöntemlerini birleştirerek maden sahalarındaki verimliliği maksimize etmeyi ve iş kazalarını dijital ikizler ve anlık takip sistemleri ile sıfıra indirmeyi hedefler.
+| Şartname Alt Başlığı | DeepMine AI Bileşeni | Teknoloji |
+|---|---|---|
+| **4.2.1** Otonom Navigasyon ve İnsansız Maden Araçları | `Explorer Node` + `Obstacle Avoidance` | LiDAR SLAM, RRT*, APF |
+| **4.2.2** Yapay Zeka Destekli Arama ve Planlama | `Hibrit GPR-NN` Rezerv Tahmincisi | TensorFlow, Scikit-Learn, GPR |
+| **4.2.3** Akıllı İSG ve Takip Sistemleri | `ISG Monitor` + `Safety Agent` | IoT, ROS 2, Anomali Tespiti |
 
----
-
-## 🛠️ Teknik Özellikler & Modüller
-
-### 1. � AI Agent Tabanlı Rezerv Planlama (Hybrid GPR-NN)
-Sondaj ve jeofizik verilerini analiz ederek **3D cevher modellemesi** yapan karar destek sistemi.
-*   **GPR (Gaussian Process Regression):** Yerel belirsizlikleri ve uzamsal korelasyonu (spatial correlation) minimize eder.
-*   **Neural Networks (NN):** Geniş ölçekli jeolojik paternleri tanımlar.
-*   **Sonuç:** Rezerv alanlarını yüksek doğrulukla tahmin ederek plansız duruşları engeller.
-
-### 2. 🛸 Otonom Navigasyon (GPS-Free LiDAR SLAM)
-GPS sinyalinin ulaşmadığı yer altı galerilerinde **LiDAR** ve **Sensör Füzyonu** ile tam otonom hareket.
-*   **Algoritma:** RRT* tabanlı rota planlama ve Yapay Potansiyel Alanlar (Potential Fields) ile engel kaçınma.
-*   **Teknoloji:** ROS 2 Humble katmanında C++ ile optimize edilmiş gerçek zamanlı navigasyon.
-
-### 3. ⌚ Akıllı İSG ve Giyilebilir Takip (Smart OHS)
-Personelin hayati verilerini ve ortamdaki gaz seviyelerini (Metan, CO2) anlık izleyen dağıtık IoT ağı.
-*   **Dağıtık Mimari:** `isg_monitor_node` veriyi toplar, `alert_node` ise anomali tespiti yaparak acil durum protokollerini devreye sokar.
+> *"Geleceğin madenciliği, veriyi altına ve güvenliği zekaya dönüştüren sistemlerde başlar."*
 
 ---
 
 ## 🏗️ Sistem Mimarisi
 
-DeepMine AI, dağıtık bir **Multi-Agent System (MAS)** mimarisi üzerine kuruludur.
-
 ```mermaid
 graph TD
-    subgraph "Saha Veri Toplama (Edge Layer)"
-        A[LiDAR & Kameralar] -->|Nokta Bulutu/Görüntü| B(ROS 2 Sensor Hub)
-        C[IoT Sensör Ağı] -->|Gaz/Nabız/Konum| B
+    subgraph "🔧 Saha Katmanı (Edge Layer)"
+        A["🔴 LiDAR (Velodyne / RPLIDAR)"] -->|Nokta Bulutu| B(ROS 2 Sensor Hub)
+        C["⌚ IoT Sensörler<br>MQ-4/MQ-7/Nabız/SpO2"] -->|Ham Sensör| B
+        D["📡 Simülasyon (Gazebo)"] -->|/scan + /odom| B
     end
 
-    subgraph "Merkezi İşleme (Fog/Cloud Layer)"
-        B -->|Ham Veri| D{Veri Ön İşleme & Füzyon}
-        D --> E[Rezerv Tahmin AI Modeli]
-        D --> F[SLAM & Haritalama]
-        E -->|Rezerv Haritası| G[Karar Destek Sistemi]
-        F -->|Konum Bilgisi| G
+    subgraph "🧠 İşleme Katmanı (Fog Layer)"
+        B -->|"Veri Akışı (10Hz)"| E{Veri Füzyon Hub}
+        E --> F["🗺️ Explorer Node\nLiDAR SLAM + RRT*\n(C++ / ROS 2)"]
+        E --> G["🤖 ISG Monitor Node\nAnomali Tespiti\n(Python / ROS 2)"]
+        E --> H["🧬 Hibrit GPR-NN\nRezerv Tahmini\n(TF + Scikit-Learn)"]
+        F --> I["🚧 Obstacle Avoidance\nAPF Reaktif Katman\n(C++ / ROS 2)"]
+        G --> J["🛡️ Safety Agent\nRisk Değerlendirme\n(Python / ROS 2)"]
     end
 
-    subgraph "Aksiyon & Arayüz (Application Layer)"
-        G --> H[Otonom Navigasyon Rotası]
-        G --> I[Dashboard & Uyarılar]
-        H --> J((Otonom Maden Aracı))
-        I --> K((Operatör))
+    subgraph "📊 Arayüz Katmanı (Application Layer)"
+        I -->|"/cmd_vel"| K((🚗 Otonom Araç))
+        J -->|"Tahliye Emri"| F
+        J -->|"Tahliye Rotası"| L["📋 Alert Dashboard\nGerçek Zamanlı Panel"]
+        H -->|"3D Rezerv Haritası"| M["📈 Operatör Karar Destek"]
+        L --> N((👷 Operatör))
+        M --> N
     end
 ```
 
 ---
 
-## 🔬 Derin Teknik Detaylar
+## 📦 Modüller
 
-### AI Modeli: Hibrit Tahminleme
-Geleneksel madencilik modelleri statiktir. DeepMine AI, **Gaussian Process Regression (GPR)** kullanarak her bir sondaj noktası için bir güven aralığı (uncertainty) hesaplar.
+### 1. 🗺️ Otonom Navigasyon (`src/autonomous_nav/`)
 
-$$ f(x) \sim \mathcal{GP}(m(x), k(x, x')) $$
+**Explorer Node** (`explorer_node.cpp`) | **C++ / ROS 2 Humble**
 
-Burada $k(x, x')$ çekirdek fonksiyonu (RBF-Kernel), cevherin yer altındaki sürekliliğini temsil eder.
+GPS sinyalinin ulaşmadığı yeraltı galerilerinde tam otonom haritalama ve navigasyon sistemi.
 
-### Navigasyon: Engel Kaçınma Mekanizması
-Araç, LiDAR verilerini `/scan` topiğinden dinler. Engel tespiti anında potansiyel alanlar yöntemiyle itme vektörü oluşturulur:
+- **SLAM**: LiDAR `/scan` verilerini `Bresenham` doğru algoritmasıyla 2D Occupancy Grid haritasına dönüştürür
+- **Rota Planlama**: `RRT*` (Rapidly-exploring Random Trees Optimal) ile hedefe en düşük maliyetli yolu bulur
+- **Tepki**: Tahliye komutu geldiğinde tüm planlamayı iptal edip güvenli çıkış rotası hesaplar
 
-$$ F_{total} = F_{attractive} + F_{repulsive} $$
+**Obstacle Avoidance Node** (`obstacle_avoidance.cpp`) | **C++ / ROS 2 Humble**
 
-Eğer bir engel 1 metre mesafeye girerse, araç otomatik olarak rotasını açılı bir manevra ile değiştirir.
+Dar galerilerde anlık engel kaçınma için reaktif katman.
+
+- **Yapay Potansiyel Alanlar (APF)**: `F_total = F_attractive + F_repulsive`
+- Engel ≤ 30cm → Acil durdurma; Engel ≤ 60cm → Yavaşla ve yön değiştir
+- RViz2'ye kuvvet vektörü görselleştirmesi yayınlar
+
+---
+
+### 2. 🧬 AI Rezerv Tahmini (`src/ai_models/`)
+
+**Hibrit GPR-NN Sistemi** | **Python / TensorFlow / Scikit-Learn**
+
+Şartname gerekliliği: *"Sondaj verilerini anlık işleyerek 3D cevher modellemesi yapan karar destek yazılımı"*
+
+**Veri Özellikleri (Features):**
+- Manyetik anomali (nT), yerçekimi anomalisi (mGal)
+- Elektriksel özdirenç (Ω·m), yükleme kapasitesi IP (ms)
+- Sismik P-dalgası hızı (m/s), kayaç yoğunluğu (g/cm³)
+- Alterasyon indisi, sondaj derinliği (m)
+
+**Desteklenen Jeolojik Bölgeler:**
+- `bor_rich` → Bor-zengin tuz gölü havzası (Kırka/Emet tipi)
+- `rare_earth` → Nadir toprak elementi yatağı (Kızılcaören tipi)
+- `copper_porphyry` → Porfiri bakır yatağı
+- `coal` → Linyit kömür yatağı
+
+---
+
+### 3. 🛡️ Akıllı İSG Sistemi (`src/sensor_hub/`)
+
+**ISG Monitor Node** (`isg_monitor_node.py`) | **Python / ROS 2**
+
+Şartname gerekliliği: *"Metan gazı, toz ve sarsıntı takibi yaparak tehlikeli durumları anlık bildiren yerli IoT sensör ağlarının kurulması"*
+
+| Sensör | Uyarı Eşiği | Alarm Eşiği | Kritik Eşik |
+|---|---|---|---|
+| **CH₄ Metan** | >1% LEL | >2.5% LEL | >5% LEL 💥 |
+| **CO** | >25 ppm | >35 ppm | >50 ppm |
+| **Nabız** | >100 BPM | >110 BPM | >130 BPM / <45 BPM |
+| **SpO₂** | <96% | <94% | <90% |
+| **PM2.5 Toz** | >50 µg/m³ | >150 µg/m³ | — |
+
+**Safety Agent** (`safety_agent.py`) | **Python / ROS 2**
+
+Çok personelli risk korelasyon analizi ve otonom tahliye kararı.
+
+- Ağırlıklı risk skoru (0-100): CH₄×35 + CO×25 + SpO₂×20 + HR×10 + Toz×10
+- 2+ personel kritik → Sistem geneli tahliye tetiklenir
+- Son 60 saniyede 10+ alarm → Otomatik tahliye
+- Her personel için tahliye rotası ve tahmini süre hesaplanır
+
+---
+
+## 🔬 Matematiksel Temel
+
+### Gaussian Process Regression (GPR) Çekirdek Fonksiyonu
+
+$$k(x, x') = C \cdot \mathcal{M}_{\nu=2.5}(x, x') + \sigma^2_{noise}$$
+
+Matern ν=2.5 çekirdeği, gerçek jeolojik veriler için RBF'den daha gerçekçidir (C¹ türevlenebilir).
+
+### Hibrit GPR-NN Nihai Tahmin
+
+$$\hat{y}(x) = \underbrace{f_{NN}(x)}_{\text{NN tahmini}} + \underbrace{\mu_{\epsilon}(x)}_{\text{GPR düzeltme}}$$
+
+Belirsizlik: $\sigma(x) = \sigma_{\epsilon}(x)$ → "Bilmiyorum" diyebilen AI
+
+### RRT* Maliyet Optimizasyonu
+
+$$c_{new} = \min_{i \in \text{Near}} \left( c_i + d(x_i, x_{new}) \right)$$
+
+Rewiring ile mevcut ağaç düğümlerinin maliyetini iyileştirir.
+
+### APF Toplam Kuvvet
+
+$$\vec{F}_{total} = \underbrace{k_{att} \cdot \hat{d}_{goal}}_{\text{Çekici}} + \underbrace{k_{rep} \cdot \left(\frac{1}{d} - \frac{1}{d_0}\right) \frac{1}{d^2} \cdot (-\hat{d}_{obs})}_{\text{İtici}}$$
 
 ---
 
 ## 💻 Kurulum ve Çalıştırma
 
 ### Gereksinimler
-*   **OS:** Ubuntu 22.04 LTS (Humble)
-*   **ROS 2 Packages:** `rclcpp`, `rclpy`, `sensor_msgs`, `nav_msgs`
-*   **Python Libs:** `tensorflow`, `scikit-learn`, `numpy`
 
-### Adımlar
+```
+OS       : Ubuntu 22.04 LTS
+ROS 2    : Humble Hawksbill
+Python   : 3.10+
+Derleme  : colcon, ament-cmake
+```
 
-1.  **Çalışma Alanını Derleyin:**
-    ```bash
-    colcon build --symlink-install
-    source install/setup.bash
-    ```
+### 1. Python Bağımlılıkları
 
-2.  **Tüm Sistemi Başlatın (Unified Launch):**
-    ```bash
-    ros2 launch teknofest_maden_teknolojileri deepmine_system_launch.py
-    ```
+```bash
+pip install -r requirements.txt
+```
 
-3.  **AI Rezerv Tahmini Analizini Çalıştırın:**
-    ```bash
-    python3 src/ai_models/reserve_predictor.py
-    ```
+### 2. ROS 2 Workspace Derleme
+
+```bash
+# Workspace kökünde
+colcon build --symlink-install
+source install/setup.bash
+```
+
+### 3. Tüm Sistemi Başlat
+
+```bash
+ros2 launch teknofest_maden_teknolojileri deepmine_system_launch.py
+```
+
+### 4. AI Rezerv Analizi (Bağımsız)
+
+```bash
+# Sentetik veri üret + Model eğit + 3D rezerv modelle
+python3 src/ai_models/data_generator.py --samples 2000 --region bor_rich
+python3 src/ai_models/reserve_predictor.py --predict-3d
+python3 src/ai_models/visualizer.py --all
+```
+
+### 5. İSG Test Senaryoları
+
+```bash
+# Metan sızıntısı senaryosu tetikle
+ros2 topic pub /deepmine/isg_scenario std_msgs/msg/String "data: 'gas_leak'"
+
+# Yangın senaryosu
+ros2 topic pub /deepmine/isg_scenario std_msgs/msg/String "data: 'fire'"
+
+# Çökme senaryosu
+ros2 topic pub /deepmine/isg_scenario std_msgs/msg/String "data: 'collapse'"
+```
+
+### 6. Navigasyon Hedefi Gönder
+
+```bash
+ros2 topic pub /deepmine/goal geometry_msgs/msg/PoseStamped \
+  '{header: {frame_id: "map"}, pose: {position: {x: 25.0, y: 0.0}}}'
+```
 
 ---
 
 ## 📂 Proje Yapısı
 
-```bash
+```
 teknofest_maden_teknolojileri/
 ├── src/
-│   ├── ai_models/          # 🧠 GPR-NN Hibrit Rezerv Modelleri
-│   ├── autonomous_nav/     # 🛸 LiDAR tabanlı C++ Navigasyon Node'ları
-│   └── sensor_hub/         # ⌚ IoT ve İSG Takip Protokolleri
-├── launch/                 # 🚀 ROS 2 Launch Dosyaları
-├── docs/                   # 📚 Teknik Raporlar ve Metodoloji
-└── simulation/             # 🎮 Gazebo Simülasyon Konfigürasyonu
+│   ├── autonomous_nav/                # 🗺️ Otonom Navigasyon (C++)
+│   │   ├── include/deepmine_ai/       #     Başlık dosyaları
+│   │   └── src/
+│   │       ├── explorer_node.cpp      #     LiDAR SLAM + RRT* (GPS-free)
+│   │       └── obstacle_avoidance.cpp #     APF Reaktif Engel Kaçınma
+│   ├── ai_models/                     # 🧬 Yapay Zeka Modelleri (Python)
+│   │   ├── data_generator.py          #     Sentetik jeofizik veri üretici
+│   │   ├── reserve_predictor.py       #     Hibrit GPR-NN rezerv tahmincisi
+│   │   └── visualizer.py              #     3D harita + İSG dashboard görsel
+│   └── sensor_hub/                    # ⌚ İSG ve Sensör Sistemi (Python)
+│       ├── isg_monitor_node.py        #     IoT sensör ağı izleme (10Hz)
+│       ├── safety_agent.py            #     Otonom risk değerlendirme ajanı
+│       └── alert_dashboard.py         #     Gerçek zamanlı terminal paneli
+├── launch/
+│   └── deepmine_system_launch.py      # 🚀 Tüm sistemi başlatan launch dosyası
+├── config/
+│   └── deepmine_params.yaml           # ⚙️ Merkezi parametre konfigürasyonu
+├── simulation/
+│   └── mine_gallery.sdf               # 🎮 Gazebo yer altı galeri dünyası
+├── docs/                              # 📚 Teknik raporlar ve görseller
+├── CMakeLists.txt                     # ROS 2 derleme konfigürasyonu
+├── package.xml                        # ROS 2 paket tanımı
+└── requirements.txt                   # Python bağımlılıkları
 ```
 
 ---
 
-## 🕊️ Proje Manifestosu & Felsefe
+## 🎭 Operasyonel Senaryolar
 
-**DeepMine AI**, sadece bir yazılım değil, madenciliğin geleceğine dair dijital bir duruştur.
+### Senaryo A: Tam Otonom Keşif (The Ghost Explorer)
+Araç bilinmeyen bir galeriye bırakılır. LiDAR SLAM ile kendi haritasını çıkarır, RRT* ile hedefe ulaşır. `Obstacle Avoidance` beklenmedik engelleri APF ile aşar.
 
-*   **Veri Demokratizasyonu:** Yer altındaki kör noktaları ortadan kaldırarak şeffaf ve güvenli bir çalışma ortamı sağlamak.
-*   **İnsan-Makine Senbiyozu:** Operatörü riskli alanlardan uzaklaştırıp, "Dijital Operatör" kimliğiyle sistemin strateji yöneticisi konumuna taşımak.
-*   **Sürdürülebilirlik:** Rezerv tahminlerindeki %95+ doğruluk ile gereksiz sondajları ve çevresel tahribatı minimize etmek.
-
-> "Bizim için maden, sadece yerin altındaki taş değil; o taşı değere, veriyi ise güvenliğe dönüştüren zekadır."
-
----
-
-## ⚙️ Donanım Spesifikasyonu (Hardware)
-
-Proje, düşük maliyetli ama yüksek performanslı sensör füzyonu üzerine kurgulanmıştır.
-
-| Kategori | Bileşen | Fonksiyon |
-| :--- | :--- | :--- |
-| **Navigasyon** | **Wayfinder DVL** | Akustik hız ölçümü ve GPS-free konumlandırma. |
-| **Görüntüleme** | **Intel RealSense D435i** | Derinlik haritalama ve SLAM desteği. |
-| **Analiz** | **NVIDIA Jetson Orin Nano** | Edge katmanında GPR ve CNN modellerinin koşturulması. |
-| **İSG** | **MQ-4 & MQ-7 Sensörleri** | Metan ve Karbonmonoksit anlık takibi. |
-| **Aktüatör** | **T200 Thrusters (Simulation)** | Otonom taşıyıcı araç motorları. |
-
----
-
-## 🔬 Multi-Agent System (MAS) Detayları
-
-DeepMine AI'nın kalbinde, her biri farklı bir görevi üstlenen bağımsız ajanlar yer alır:
-
-1.  **Surveyor Agent (Keşifçi):** LiDAR verilerini işleyerek anlık haritayı günceller.
-2.  **Geologist Agent (Jeomorfolog):** GPR kullanarak rezerv kestirimi yapar.
-3.  **Safety Agent (Muhafız):** Gaz ve sağlık verilerini saniyede 10 kez tarayarak acil durum kararı verir.
-4.  **Pilot Agent (Dümenci):** Engel kaçınma algoritmalarını (Potential Fields) koşturarak aracı güvenli rotada tutar.
-
-Bu ajanlar, **ROS 2 DDS** katmanı üzerinden düşük gecikmeli haberleşerek kolektif bir zeka oluşturur.
-
----
-
-## ❓ Sıkça Sorulan Sorular (FAQ)
-
-**S: Neden GPR ve NN hibrit model kullanılıyor?**
-*C: Sinir ağları genel paternleri çok iyi öğrenir ancak belirsizliği (uncertainty) modelleyemez. GPR ise her tahmin için bir "güven skoru" üretir. Maden sahalarında "bilmiyorum" diyebilen bir AI, yanlış tahminden daha değerlidir.*
-
-**S: Sistem tamamen çevrimdışı çalışabilir mi?**
-*C: Evet. Tüm AI modelleri ve navigasyon algoritmaları uç cihazlarda (Edge Computing) çalışacak şekilde optimize edilmiştir. İnternet bağlantısı sadece merkezi dashboard senkronizasyonu için gereklidir.*
-
-**S: TEKNOFEST 2026 kısıtlamalarına uygun mu?**
-*C: Evet, proje T3 Vakfı tarafından belirlenen yerlilik ve millilik kriterlerine, ayrıca donanım kısıtlamalarına tam uyumlu olarak tasarlanmıştır.*
-
----
-
-## � Teknoloji Yığını (Tech Stack)
-
-| Alan | Araçlar & Kütüphaneler |
-| :--- | :--- |
-| **Core** | ROS 2 Humble, C++ 17, Python 3.10 |
-| **AI/ML** | TensorFlow, Scikit-Learn, PyTorch |
-| **Simulation** | Gazebo Classic, Unity, Rviz2 |
-| **Data Flow** | Protobuf, JSON, MQTT |
-
----
-
-## 🎭 Operasyonel Senaryolar (Mission Scenarios)
-
-DeepMine AI'nın sahada nasıl çalıştığına dair 3 ana senaryo:
-
-### Senaryo A: Tam Otonom Haritalama (The Ghost Explorer)
-Araç, bilinmeyen bir galeriye bırakılır. GPS ve haberleşme yokken LiDAR SLAM ile kendi haritasını çıkarır. Engel tespiti halinde `Pilot Agent` manevra yapar, harita tamamlandığında `Geologist Agent` rezerv tahminini dashboard'a yansıtır.
-
-### Senaryo B: Acil Durum Tahliyesi (The Guardian Spirit)
-Ortamdaki metan seviyesi %5'i geçtiğinde, `Safety Agent` tüm sistemi alarm durumuna geçirir. Otonom araç, en yakın personeli tespit eder ve hafızasındaki en güvenli rotayı kullanarak tahliye rehberliği yapar.
+### Senaryo B: Gaz Sızıntısı Tahliyesi (The Guardian Spirit)
+Metan seviyesi kritik eşiği aştığında: `ISG Monitor` → `Safety Agent` → Tahliye Emri → `Explorer Node` → Tüm otonom araçlar güvenli çıkışa yönelir.
 
 ### Senaryo C: Dinamik Rezerv Optimizasyonu (The Digital Alchemist)
-Yeni sondaj verileri sisteme girildiğinde, `Hybrid GPR-NN` modeli anlık olarak güncellenir. Maden işletme planı, en yüksek tenörlü bölgelere göre yapay zeka tarafından otomatik olarak revize edilir.
+Yeni sondaj verisi geldiğinde `Hibrit GPR-NN` anlık güncellenir. 3D rezerv haritası operatöre yansıtılır, yüksek tenörlü bölgeler otomatik önceliklendirilir.
 
 ---
 
-## 🗺️ 5 Yıllık Stratejik Yol Haritası (2026 - 2030)
+## 📈 TEKNOFEST 2026 Yol Haritası
 
-| Yıl | Hedef | Aşama |
-| :--- | :--- | :--- |
-| **2026** | **TEKNOFEST Birinciliği** | Ar-Ge Prototiplerinin sahada doğrulanması. |
-| **2027** | **Pilot İşletme** | İlk ticari maden sahasında MAS sisteminin entegrasyonu. |
-| **2028** | **Maden Swarm AI** | 10+ aracın kolektif zeka ile sürü halinde çalışması. |
-| **2029** | **Küresel İhracat** | Sistemin Türk Cumhuriyetleri ve Afrika pazarına sunulması. |
-| **2030** | **Mining 5.0** | Sıfır insan müdahalesi ile tam otonom derin deniz ve uzay madenciliği Ar-Ge. |
-
----
-
-## ➗ Gelişmiş Matematiksel Derinlik
-
-### GPR Residual Refinement
-Sinir ağı tahmini $f_{NN}(x)$ ile gerçek değer $y$ arasındaki farkı (residual) GPR ile modelliyoruz:
-
-$$ \epsilon(x) = y - f_{NN}(x) $$
-$$ \epsilon(x) \sim \mathcal{GP}(0, k(x, x')) $$
-
-Nihai tahminimiz: $\hat{y} = f_{NN}(x) + \mu_{\epsilon}(x)$. Bu sayede doğrusal olmayan karmaşık jeolojik yapılar hem küresel hem de yerel ölçekte en iyi şekilde yakalanır.
-
-### RRT* Path Smoothing
-Oluşturulan rotadaki keskin dönüşleri minimize etmek için B-Spline interpolasyonu ile yol yumuşatma (smoothing) uygulanır:
-
-$$ S(t) = \sum_{i=0}^{n} P_i B_{i,k}(t) $$
-
-Bu, otonom aracın mekanik yıpranmasını azaltır ve enerji verimliliğini %15 artırır.
+| Aşama | Tarih | Durum |
+|---|---|---|
+| Başvuru | 20.02.2026 | ✅ Tamamlandı |
+| **Ön Değerlendirme Raporu** | **01.04.2026** | 📝 **Hazırlanıyor** |
+| Ön Eleme Sonuçları | 13-15.05.2026 | ⏳ Bekliyor |
+| Proje Sunumu (Yarı Final) | 06.07.2026 | ⏳ |
+| Çevrim İçi Sunum | 13-20.07.2026 | ⏳ |
+| Finalistler Açıklanması | 30.07.2026 | ⏳ |
+| **Final - Şanlıurfa** | **30.09-04.10.2026** | 🏆 **Hedef** |
 
 ---
 
-## 🌍 Sosyal ve Ekonomik Etki
-
-*   **Ekonomik:** İthal yazılım bağımlılığını bitirerek yıllık ~50M USD döviz çıkışını engellemek.
-*   **Sosyal:** Maden kazalarındaki ölüm oranlarını, akıllı takip ve otonom tahliye ile %80+ oranında düşürmek.
-*   **Akademik:** Yerli litaratüre "Otonom Madencilik" alanında 5+ patent ve 10+ akademik yayın kazandırmak.
-
----
-
-## 📈 Yarışma Yol Haritası (TEKNOFEST 2026)
-
-- [x] **Başvuru:** 20.02.2026 ✅
-- [x] **Temel Modül Geliştirme:** (AI, Nav, İSG) ✅
-- [ ] **Ön Değerlendirme Raporu:** 01.04.2026 📝
-- [ ] **Kritik Tasarım Raporu:** Haziran 2026 📝
-- [ ] **Yarı Final Sunumu:** Temmuz 2026 🎤
-- [ ] **Final / Şanlıurfa:** Eylül 2026 🏆
-
----
-
-## 👤 Geliştirici Hakkında
+## 👤 Geliştirici
 
 <div align="center">
 
 **Bahattin Yunus**
-*Yazılım, Mekatronik ve Veri Bilimi Tutkunu*
-
-**Geleceği madenlerde değil, o madenleri akıllandıran satırlarda arıyoruz.**
+*Yazılım Mühendisi | AI & Robotik Sistemler*
 
 [GitHub](https://github.com/bahattinyunus) • [LinkedIn](#) • [Email](#)
+
+<br/>
+
+*"Madenciliği akıllandıran kodlar, sadece yazılım değil; yarının mühendislik mirasıdır."*
 
 </div>
 
 ---
 
 ### ⚖️ Sorumluluk Beyanı
-Bu proje **T3 Vakfı** ve **TEKNOFEST Maden Teknolojileri Yarışması** şartnamesine uygun olarak geliştirilmiştir.
+Bu proje **T3 Vakfı** ve **TEKNOFEST 2026 Maden Teknolojileri Yarışması** şartnamesine uygun olarak geliştirilmiştir.
 
 <div align="center">
-<sub>Made with ❤️ by Bahattin Yunus</sub>
+<sub>Made with ❤️ by Bahattin Yunus · TEKNOFEST 2026</sub>
 </div>

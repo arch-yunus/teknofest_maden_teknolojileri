@@ -1,0 +1,132 @@
+###############################################################################
+# DeepMine AI - Sistem Parametre Konfigürasyonu
+# TEKNOFEST 2026 Maden Teknolojileri Yarışması
+#
+# Bu dosyada sistemin tüm parametreleri merkezi olarak yönetilir.
+# ROS 2 Launch dosyasından otomatik olarak yüklenir.
+###############################################################################
+
+# ─────────────────────────────────────────────────────────────────
+#  Explorer Node Parametreleri (Otonom Navigasyon)
+# ─────────────────────────────────────────────────────────────────
+deepmine_explorer:
+  ros__parameters:
+
+    # Araç Hareket Limitleri
+    max_linear_velocity: 0.5          # m/s - maksimum ilerleme hızı
+    max_angular_velocity: 1.0         # rad/s - maksimum dönme hızı
+
+    # LiDAR Ayarları
+    lidar_range_max: 10.0             # m - maksimum LiDAR menzili
+    lidar_range_min: 0.05             # m - minimum LiDAR menzili
+
+    # Harita Parametreleri (2D Occupancy Grid)
+    map_resolution: 0.05              # m/hücre - harita çözünürlüğü
+    map_width: 200                    # hücre - harita genişliği
+    map_height: 200                   # hücre - harita yüksekliği
+
+    # RRT* Yol Planlama
+    rrt_max_iterations: 3000          # maksimum RRT iterasyonu
+    rrt_step_size: 0.5                # m - her adımda mesafe
+    rrt_goal_bias: 0.10               # hedef noktaya örnekleme olasılığı
+    safe_distance: 0.4                # m - engelden minimum güvenli mesafe
+
+    # Keşif
+    exploration_radius: 5.0           # m - keşif yarıçapı
+
+# ─────────────────────────────────────────────────────────────────
+#  Obstacle Avoidance Node Parametreleri (APF)
+# ─────────────────────────────────────────────────────────────────
+deepmine_obstacle_avoidance:
+  ros__parameters:
+
+    # APF Engel Kaçınma
+    dangerous_range: 0.6              # m - tehlike mesafesi (yavaşla)
+    influence_range: 1.5              # m - APF etki yarıçapı
+    emergency_stop_range: 0.3         # m - tam durdurma mesafesi
+
+    # APF Katsayıları
+    k_attractive: 1.2                 # çekici kuvvet katsayısı
+    k_repulsive: 2.0                  # itici kuvvet katsayısı
+
+    # Hız Limitleri (APF için bağımsız)
+    max_linear_vel: 0.4               # m/s
+    max_angular_vel: 1.2              # rad/s
+
+# ─────────────────────────────────────────────────────────────────
+#  ISG Monitor Node Parametreleri
+# ─────────────────────────────────────────────────────────────────
+deepmine_isg_monitor:
+  ros__parameters:
+
+    # Personel Ayarları
+    n_workers: 3                      # İzlenecek personel sayısı
+
+    # Örnekleme
+    sampling_rate_hz: 10.0            # Hz - sensör okuma frekansı
+
+    # Alarm Hassasiyeti
+    alarm_history_size: 100           # Saklanacak geçmiş alarm sayısı
+    consecutive_alarms_threshold: 5   # Art arda kaç alarm → alarm yayınla
+
+    # Sensör Eşik Değerleri (MSHA/OSHA standartları)
+    ch4_warning_pct_lel: 1.0          # Metan Uyarı eşiği (% LEL)
+    ch4_alarm_pct_lel: 2.5            # Metan Alarm eşiği
+    ch4_critical_pct_lel: 5.0         # Metan Kritik eşiği (≥5% patlama tehlikesi)
+
+    co_warning_ppm: 25.0              # CO Uyarı eşiği (ppm) [OSHA TWA]
+    co_alarm_ppm: 35.0                # CO Alarm eşiği
+    co_critical_ppm: 50.0             # CO Kritik eşiği
+
+    dust_warning_ug_m3: 50.0          # PM2.5 Uyarı eşiği (µg/m³)
+    dust_alarm_ug_m3: 150.0           # PM2.5 Alarm eşiği
+
+    heart_rate_warning_bpm: 100.0     # Nabız Uyarı eşiği (BPM)
+    heart_rate_alarm_bpm: 110.0       # Nabız Alarm eşiği
+    heart_rate_critical_bpm: 130.0    # Nabız Kritik eşiği
+    heart_rate_low_critical_bpm: 45.0 # Düşük Nabız Kritik (bilinç kaybı riski)
+
+    spo2_warning_pct: 96.0            # Oksijen Saturasyonu Uyarı (%)
+    spo2_alarm_pct: 94.0              # SpO2 Alarm eşiği
+    spo2_critical_pct: 90.0           # SpO2 Kritik eşiği
+
+    ambient_temp_warning_c: 30.0      # Ortam Sıcaklığı Uyarı (°C)
+    ambient_temp_alarm_c: 35.0        # Ortam Sıcaklığı Alarm
+
+# ─────────────────────────────────────────────────────────────────
+#  Safety Agent Parametreleri
+# ─────────────────────────────────────────────────────────────────
+deepmine_safety_agent:
+  ros__parameters:
+
+    # Risk Karar Eşikleri
+    evacuation_risk_threshold: 70.0   # 0-100 risk skoru → tahliye
+    multi_worker_alarm_threshold: 2   # Kaç kişi kritik → otomatik tahliye
+    alarm_rate_threshold: 10          # Son 60s'de kaç alarm → tahliye
+
+    # Risk Ağırlıkları (Toplam = 100)
+    weight_ch4: 35                    # Metan ağırlığı
+    weight_co: 25                     # CO ağırlığı
+    weight_spo2: 20                   # SpO2 ağırlığı
+    weight_heart_rate: 10             # Nabız ağırlığı
+    weight_dust: 10                   # Toz ağırlığı
+
+    # Tahliye Parametreleri
+    evacuation_walk_speed_mps: 0.8    # Personel yürüme hızı tahmini (m/s)
+    status_report_interval_sec: 30.0  # Durum raporu yayın sıklığı
+
+# ─────────────────────────────────────────────────────────────────
+#  AI Model Parametreleri (Python betikleri için ortam değişkenleri)
+# ─────────────────────────────────────────────────────────────────
+# Not: Bu bölüm ROS2 node parametresi olarak değil,
+#       Python betikleri için referans değerler olarak kullanılır.
+ai_model_config:
+  nn_epochs: 150
+  nn_batch_size: 64
+  nn_learning_rate: 0.001
+  gpr_n_restarts: 5
+  gpr_max_samples: 500
+  train_split_ratio: 0.80
+  default_region: "bor_rich"
+  data_dir: "data"
+  models_dir: "models"
