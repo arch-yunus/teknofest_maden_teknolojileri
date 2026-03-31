@@ -34,8 +34,8 @@ Proje; üç temel şartname alt başlığını tam olarak karşılar:
 | Şartname Alt Başlığı | DeepMine AI Bileşeni | Teknoloji |
 |---|---|---|
 | **4.2.1** Otonom Navigasyon ve İnsansız Maden Araçları | `Explorer Node` + `Obstacle Avoidance` | LiDAR SLAM, RRT*, APF |
-| **4.2.2** Yapay Zeka Destekli Arama ve Planlama | `Hibrit GPR-NN` Rezerv Tahmincisi | TensorFlow, Scikit-Learn, GPR |
-| **4.2.3** Akıllı İSG ve Takip Sistemleri | `ISG Monitor` + `Safety Agent` | IoT, ROS 2, Anomali Tespiti |
+| **4.2.2** Yapay Zeka Destekli Arama ve Planlama | `Hibrit GPR-NN` + `Kestirimci Bakım` | TensorFlow, Scikit-Learn, Random Forest |
+| **4.2.3** Akıllı İş Sağlığı Güvenliği (İSG) ve Takip | `ISG Monitor` + `Safety Agent` | IoT, ROS 2, Anomali Tespiti |
 
 > *"Geleceğin madenciliği, veriyi altına ve güvenliği zekaya dönüştüren sistemlerde başlar."*
 
@@ -109,8 +109,13 @@ Dar galerilerde anlık engel kaçınma için reaktif katman.
 **Desteklenen Jeolojik Bölgeler:**
 - `bor_rich` → Bor-zengin tuz gölü havzası (Kırka/Emet tipi)
 - `rare_earth` → Nadir toprak elementi yatağı (Kızılcaören tipi)
-- `copper_porphyry` → Porfiri bakır yatağı
-- `coal` → Linyit kömür yatağı
+**Kestirimci Bakım (Predictive Maintenance)** | **Python / Scikit-Learn**
+
+Şartname gerekliliği: *"Olası makine arızalarını önceden tahmin eden kestirimci analiz sistemleri"*
+
+- **RUL Tahmini**: Makine sensörlerinden (titreşim, sıcaklık vb.) Kalan Faydalı Ömür tahmini yapar
+- **Bakım Planlama**: Plansız duruşları sıfıra indirerek operasyonel verimliliği artırır
+- **Entegrasyon**: Otonom araçların sağlık durumunu `Safety Agent`'a raporlar
 
 ---
 
@@ -277,7 +282,7 @@ Yeni sondaj verisi geldiğinde `Hibrit GPR-NN` anlık güncellenir. 3D rezerv ha
 | Aşama | Tarih | Durum |
 |---|---|---|
 | Başvuru | 20.02.2026 | ✅ Tamamlandı |
-| **Ön Değerlendirme Raporu** | **01.04.2026** | 📝 **Hazırlanıyor** |
+| **Ön Değerlendirme Raporu** | **01.04.2026** | ✅ **Hazırlandı** |
 | Ön Eleme Sonuçları | 13-15.05.2026 | ⏳ Bekliyor |
 | Proje Sunumu (Yarı Final) | 06.07.2026 | ⏳ |
 | Çevrim İçi Sunum | 13-20.07.2026 | ⏳ |

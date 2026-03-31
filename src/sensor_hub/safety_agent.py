@@ -92,6 +92,7 @@ class SafetyAgentNode(Node):
       /deepmine/evacuation_route : Tahliye rotası önerisi
       /deepmine/agent_decision   : Ajan karar gerekçesi (loglama)
       /deepmine/risk_report      : Risk raporu
+      /deepmine/safety/inspection_request: Drone denetim talebi
     """
 
     # ── Acil Durum Eşikleri ──
@@ -125,6 +126,8 @@ class SafetyAgentNode(Node):
             String, "/deepmine/agent_decision", 10)
         self.pub_risk_report = self.create_publisher(
             String, "/deepmine/risk_report", 10)
+        self.pub_drone_req = self.create_publisher(
+            String, "/deepmine/safety/inspection_request", 10)
 
         # ---- Subscriber'lar ----
         self.sub_alarm = self.create_subscription(
@@ -154,35 +157,43 @@ class SafetyAgentNode(Node):
     def _compute_risk_score(self, sensor_data: dict) -> float:
         """
         Çok parametreli ağırlıklı risk skoru (0-100).
-
-        Ağırlıklar:
-          CH4  → 35%  (patlama tehlikesi en kritik)
-          CO   → 25%  (zehirlenme)
-          SpO2 → 20%  (boğulma işareti)
-          HR   → 10%  (stres/bilinç)
-          Toz  → 10%  (uzun vadeli)
+        Güncellenmiş Karar Matrisi (TEKNOFEST 2026):
+          CH4  → 30% | CO   → 20% | SpO2 → 15% | HR   → 10%
+          Toz  → 10% | Yorulma → 10% | Sarsıntı → 5%
         """
         ch4 = sensor_data.get("ch4_pct_lel", 0.0)
         co = sensor_data.get("co_ppm", 0.0)
         spo2 = sensor_data.get("spo2_pct", 100.0)
         hr = sensor_data.get("heart_rate_bpm", 75.0)
         dust = sensor_data.get("dust_ug_m3", 0.0)
+        fatigue = sensor_data.get("fatigue_level", 0.0)
+        vibration = sensor_data.get("vibration_g", 0.0)
 
         # Normalize etme (0-1)
-        ch4_norm = min(1.0, ch4 / 10.0)            # 10% LEL = max risk
-        co_norm = min(1.0, co / 100.0)              # 100 ppm = max risk
-        spo2_norm = max(0.0, (100.0 - spo2) / 15.0)  # <85% = max risk
-        hr_norm = min(1.0, max(0.0, (hr - 70.0) / 80.0))  # 150+ BPM = max
-        dust_norm = min(1.0, dust / 300.0)           # 300+ µg/m³ = max
+        ch4_norm = min(1.0, ch4 / 5.0)
+        co_norm = min(1.0, co / 50.0)
+        spo2_norm = max(0.0, (96.0 - spo2) / 10.0)
+        hr_norm = min(1.0, max(0.0, (hr - 70.0) / 70.0))
+        dust_norm = min(1.0, dust / 150.0)
+        fat_norm = min(1.0, fatigue / 100.0)
+        vib_norm = min(1.0, vibration / 2.0)
 
         # Ağırlıklı ortalama
         risk = (
-            ch4_norm * 35.0 +
-            co_norm * 25.0 +
-            spo2_norm * 20.0 +
+            ch4_norm * 30.0 +
+            co_norm * 20.0 +
+            spo2_norm * 15.0 +
             hr_norm * 10.0 +
-            dust_norm * 10.0
+            dust_norm * 10.0 +
+            fat_norm * 10.0 +
+            vib_norm * 5.0
         )
+
+        # Drone Tetikleme Mantığı
+        if risk > 40.0 and not self.evacuation_active:
+             drone_msg = String()
+             drone_msg.data = f"Investigating anomalies for worker {sensor_data.get('worker_id', 'unknown')}"
+             self.pub_drone_req.publish(drone_msg)
 
         return min(100.0, risk)
 

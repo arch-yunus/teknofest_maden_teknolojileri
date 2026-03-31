@@ -119,7 +119,7 @@ def generate_launch_description():
         remappings=[
             ("/scan", "/scan"),
             ("/odom", "/odom"),
-            ("/cmd_vel", "/cmd_vel"),
+            ("/cmd_vel", "/deepmine/explorer_cmd"),
         ],
     )
 
@@ -204,6 +204,56 @@ def generate_launch_description():
     )
 
     # ============================================================
+    #  6. EKF Fusion Node (Python) - LiDAR + IMU + Odom
+    # ============================================================
+    ekf_fusion_node = Node(
+        package="teknofest_maden_teknolojileri",
+        executable="ekf_fusion_node.py",
+        name="deepmine_ekf_fusion",
+        namespace="deepmine",
+        output="screen",
+        parameters=[params_file, {"use_sim_time": use_sim_time}],
+        condition=IfCondition(enable_nav),
+    )
+
+    # ============================================================
+    #  7. Water Well Automation (Python) - Flooding Prevention
+    # ============================================================
+    water_well_node = Node(
+        package="teknofest_maden_teknolojileri",
+        executable="water_well_automation.py",
+        name="deepmine_water_well",
+        namespace="deepmine",
+        output="screen",
+        parameters=[params_file, {"use_sim_time": use_sim_time}],
+    )
+
+    # ============================================================
+    #  8. Drone Inspector Node (Python) - Autonomous Inspection
+    # ============================================================
+    drone_node = Node(
+        package="teknofest_maden_teknolojileri",
+        executable="drone_inspector_node.py",
+        name="deepmine_drone_inspector",
+        namespace="deepmine",
+        output="screen",
+        parameters=[params_file, {"use_sim_time": use_sim_time}],
+    )
+
+    # ============================================================
+    #  9. Predictive Maintenance Node (Python) - RUL & Anomaly
+    # ============================================================
+    pm_node = Node(
+        package="teknofest_maden_teknolojileri",
+        executable="predictive_maintenance.py",
+        name="deepmine_predictive_maintenance",
+        namespace="deepmine",
+        arguments=["--ros"],
+        output="screen",
+        parameters=[params_file, {"use_sim_time": use_sim_time}],
+    )
+
+    # ============================================================
     #  Başlatma Mesajları
     # ============================================================
     log_start = LogInfo(
@@ -213,17 +263,19 @@ def generate_launch_description():
             "║  TEKNOFEST 2026 | Maden Teknolojileri Yarışması ║\n"
             "╠══════════════════════════════════════════════════╣\n"
             "║  1. Explorer Node      → LiDAR SLAM + RRT*     ║\n"
-            "║  2. Obstacle Avoidance → APF Reaktif Katman     ║\n"
-            "║  3. ISG Monitor        → Sensör Ağı İzleme      ║\n"
-            "║  4. Safety Agent       → Otonom Tahliye Kararı  ║\n"
-            "║  5. Alert Dashboard    → Gerçek Zamanlı Panel   ║\n"
+            "║  2. EKF Fusion Hub     → LiDAR + IMU + Odom    ║\n"
+            "║  3. Water Well Auto    → Task 4.2.3 Compliance ║\n"
+            "║  4. Drone Inspector    → Autonomous Hazard Scan║\n"
+            "║  5. Predictive Maint.  → RUL + Anomaly Detection║\n"
+            "║  6. Safety Agent       → multi-worker risk     ║\n"
+            "║  7. Alert Dashboard    → Real-time Monitoring  ║\n"
             "╚══════════════════════════════════════════════════╝"
     )
 
     log_ready = TimerAction(
-        period=3.0,
+        period=4.0,
         actions=[
-            LogInfo(msg="✅ DeepMine AI tam sistem HAZIR. Tüm modüller aktif.")
+            LogInfo(msg="✅ DeepMine AI tam sistem HAZIR. Tüm 9 modül aktif ve senkronize.")
         ],
     )
 
@@ -241,9 +293,13 @@ def generate_launch_description():
         # Düğümler
         explorer_node,
         obstacle_node,
+        ekf_fusion_node,
         isg_monitor_node,
         safety_agent_node,
         alert_dashboard_node,
+        water_well_node,
+        drone_node,
+        pm_node,
         # Hazır bildirimi
         log_ready,
     ])

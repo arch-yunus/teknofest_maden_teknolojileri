@@ -76,6 +76,7 @@ ament_python_install_package(${PROJECT_NAME})
 install(PROGRAMS
   src/ai_models/reserve_predictor.py
   src/ai_models/data_generator.py
+  src/ai_models/predictive_maintenance.py
   src/ai_models/visualizer.py
   src/sensor_hub/isg_monitor_node.py
   src/sensor_hub/safety_agent.py

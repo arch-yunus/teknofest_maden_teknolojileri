@@ -1,0 +1,86 @@
+<?xml version="1.0" ?>
+<!--
+  DeepMine AI - Gazebo Yer Altı Maden Gelerisi Dünyası
+  TEKNOFEST 2026 Maden Teknolojileri Yarışması
+-->
+<sdf version="1.6">
+  <world name="mine_world">
+    <!-- Fizik Motoru -->
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <physics name="default_physics" default="true" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+
+    <!-- Ortam Işığı (Yer altı - karanlık) -->
+    <light name="ambient_mine" type="ambient">
+      <cast_shadows>false</cast_shadows>
+      <diffuse>0.1 0.1 0.1 1.0</diffuse>
+      <specular>0.01 0.01 0.01 1.0</specular>
+    </light>
+
+    <!-- Galeri Duvarları (Basitleştirilmiş) -->
+    <model name="mine_walls">
+      <static>true</static>
+      <link name="link">
+        <collision name="wall_1">
+          <pose>15 2 1.5 0 0 0</pose>
+          <geometry><box><size>30 0.2 3</size></box></geometry>
+        </collision>
+        <visual name="wall_1_vis">
+          <pose>15 2 1.5 0 0 0</pose>
+          <geometry><box><size>30 0.2 3</size></box></geometry>
+          <material><ambient>0.2 0.2 0.2 1</ambient></material>
+        </visual>
+        
+        <collision name="wall_2">
+          <pose>15 -2 1.5 0 0 0</pose>
+          <geometry><box><size>30 0.2 3</size></box></geometry>
+        </collision>
+        <visual name="wall_2_vis">
+          <pose>15 -2 1.5 0 0 0</pose>
+          <geometry><box><size>30 0.2 3</size></box></geometry>
+          <material><ambient>0.2 0.2 0.2 1</ambient></material>
+        </visual>
+
+        <!-- T kavşak -->
+        <collision name="wall_3">
+          <pose>15 -7 1.5 0 0 1.57</pose>
+          <geometry><box><size>10 0.2 3</size></box></geometry>
+        </collision>
+        <visual name="wall_3_vis">
+          <pose>15 -7 1.5 0 0 1.57</pose>
+          <geometry><box><size>10 0.2 3</size></box></geometry>
+          <material><ambient>0.2 0.2 0.2 1</ambient></material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Engeller -->
+    <model name="rock_1">
+      <static>true</static>
+      <pose>8 0.5 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>1 1 1</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>1 1 1</size></box></geometry><material><ambient>0.4 0.3 0.2 1</ambient></material></visual>
+      </link>
+    </model>
+
+    <model name="rock_2">
+      <static>true</static>
+      <pose>18 -1.0 0.5 0 0 0</pose>
+      <link name="link">
+        <collision name="col"><geometry><box><size>1.2 1 1</size></box></geometry></collision>
+        <visual name="vis"><geometry><box><size>1.2 1 1</size></box></geometry><material><ambient>0.4 0.3 0.2 1</ambient></material></visual>
+      </link>
+    </model>
+
+  </world>
+</sdf>

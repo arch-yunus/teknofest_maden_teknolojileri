@@ -104,16 +104,49 @@ deepmine_safety_agent:
     multi_worker_alarm_threshold: 2   # Kaç kişi kritik → otomatik tahliye
     alarm_rate_threshold: 10          # Son 60s'de kaç alarm → tahliye
 
-    # Risk Ağırlıkları (Toplam = 100)
-    weight_ch4: 35                    # Metan ağırlığı
-    weight_co: 25                     # CO ağırlığı
-    weight_spo2: 20                   # SpO2 ağırlığı
-    weight_heart_rate: 10             # Nabız ağırlığı
-    weight_dust: 10                   # Toz ağırlığı
+    # Risk Ağırlıkları (Toplam = 100) - TEKNOFEST 2026 Güncellemesi
+    weight_ch4: 30                    # Metan (%30)
+    weight_co: 20                     # CO (%20)
+    weight_spo2: 15                   # SpO2 (%15)
+    weight_heart_rate: 10             # Nabız (%10)
+    weight_dust: 10                   # Toz (%10)
+    weight_fatigue: 10                # Yorulma (%10)
+    weight_vibration: 5               # Sarsıntı (%5)
+
+    # Drone Tetikleme
+    drone_request_threshold: 40.0     # Bu riskten sonra drone denetimi başlar
 
     # Tahliye Parametreleri
     evacuation_walk_speed_mps: 0.8    # Personel yürüme hızı tahmini (m/s)
     status_report_interval_sec: 30.0  # Durum raporu yayın sıklığı
+
+# ─────────────────────────────────────────────────────────────────
+#  EKF Fusion Node Parametreleri
+# ─────────────────────────────────────────────────────────────────
+deepmine_ekf_fusion:
+  ros__parameters:
+    process_noise: 0.01
+    odom_noise: 0.05
+    imu_noise: 0.01
+    lidar_noise: 0.001
+
+# ─────────────────────────────────────────────────────────────────
+#  Water Well Automation Parametreleri
+# ─────────────────────────────────────────────────────────────────
+deepmine_water_well_automation:
+  ros__parameters:
+    critical_level: 85.0              # % - Tahliye/Tam pompa
+    warning_level: 70.0               # % - Önleyici pompa
+    pump_capacity_lps: 15.0           # Litre/Saniye
+
+# ─────────────────────────────────────────────────────────────────
+#  Drone Inspector Node Parametreleri
+# ─────────────────────────────────────────────────────────────────
+deepmine_drone_inspector:
+  ros__parameters:
+    mission_radius: 50.0              # m
+    battery_threshold: 20.0           # %
+    scan_altitude: 2.5                # m
 
 # ─────────────────────────────────────────────────────────────────
 #  AI Model Parametreleri (Python betikleri için ortam değişkenleri)
@@ -130,3 +163,5 @@ ai_model_config:
   default_region: "bor_rich"
   data_dir: "data"
   models_dir: "models"
+  min_ore_grade: 1.5                  # Üretim optimizasyonu için minimum tenör
+  max_extraction_depth: 100           # Üretim optimizasyonu için maksimum derinlik
