@@ -392,11 +392,33 @@ private:
         break;
 
       case ExplorerState::PATH_FOLLOWING:
-        followPath();
+        if (isPathBlocked()) {
+           RCLCPP_WARN(this->get_logger(), "[State] Mevcut rota engellendi! Yeniden planlanıyor...");
+           state_ = ExplorerState::RE_PLANNING;
+        } else {
+           followPath();
+        }
+        break;
+
+      case ExplorerState::RE_PLANNING:
+        planned_path_ = planPathRRT(current_pose_, goal_pose_);
+        if (!planned_path_.empty()) {
+          path_index_ = 0;
+          state_ = ExplorerState::PATH_FOLLOWING;
+          publishPlannedPath();
+        } else {
+          // Re-planning failed, back off slightly
+          geometry_msgs::msg::Twist recovery;
+          recovery.linear.x = -0.1;
+          recovery.angular.z = 0.5;
+          pub_cmd_vel_->publish(recovery);
+          RCLCPP_ERROR_THROTTLE(this->get_logger(), *this->get_clock(), 2000, "[State] Rota bulunamadı, kurtarma manevrası yapılıyor...");
+        }
         break;
 
       case ExplorerState::EVACUATING:
-        followPath(); // Aynı mantık, hedef (0,0)
+        if (isPathBlocked()) state_ = ExplorerState::RE_PLANNING;
+        else followPath();
         break;
 
       default:
@@ -448,6 +470,17 @@ private:
     }
 
     pub_cmd_vel_->publish(cmd);
+  }
+
+  bool isPathBlocked() const {
+    if (planned_path_.empty() || path_index_ >= static_cast<int>(planned_path_.size())) return false;
+    
+    // Check next 5 waypoints or until end of path
+    int lookahead = std::min(static_cast<int>(planned_path_.size()), path_index_ + 5);
+    for (int i = path_index_; i < lookahead; ++i) {
+      if (!isCollisionFree(planned_path_[i])) return true;
+    }
+    return false;
   }
 
   double getFrontClearance() const {

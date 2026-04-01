@@ -254,6 +254,29 @@ def generate_launch_description():
     )
 
     # ============================================================
+    #  10. Ventilation Manager (Python) - Smart Airflow
+    # ============================================================
+    ventilation_node = Node(
+        package="teknofest_maden_teknolojileri",
+        executable="ventilation_manager.py",
+        name="deepmine_ventilation",
+        namespace="deepmine",
+        output="screen",
+        parameters=[params_file, {"use_sim_time": use_sim_time}],
+    )
+
+    # ============================================================
+    #  11. Mission Blackbox Logger (Python)
+    # ============================================================
+    logger_node = Node(
+        package="teknofest_maden_teknolojileri",
+        executable="mission_logger.py",
+        name="deepmine_mission_logger",
+        namespace="deepmine",
+        output="screen",
+    )
+
+    # ============================================================
     #  Başlatma Mesajları
     # ============================================================
     log_start = LogInfo(

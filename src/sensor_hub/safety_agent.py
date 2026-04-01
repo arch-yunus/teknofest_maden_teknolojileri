@@ -142,16 +142,31 @@ class SafetyAgentNode(Node):
             String, "/deepmine/isg_summary",
             self.summary_callback, 10)
 
+        # ---- Geofence Tanimlari (Yasakli Bolgeler) ----
+        # Format: (x_min, y_min, x_max, y_max, zone_name)
+        self.restricted_zones = [
+            (20.0, 10.0, 40.0, 30.0, "PATLATMA_SAHASI"),
+            (70.0, 60.0, 90.0, 80.0, "GOCUK_RISKLI_ALAN"),
+            (10.0, 80.0, 30.0, 95.0, "SINIRLI_HAVALANDIRMA")
+        ]
+
         # ---- Risk değerlendirme döngüsü (2 Hz) ----
         self.risk_timer = self.create_timer(0.5, self.risk_assessment_loop)
-
+        
         # ---- Durum raporu (30 saniyede bir) ----
         self.status_timer = self.create_timer(30.0, self.publish_status_report)
 
-        self.get_logger().info("[Safety Agent] Alarm izleme aktif.")
+        self.get_logger().info("[Safety Agent] Geofence izleme ve Alarm korelasyonu aktif.")
+
+    def _check_geofence(self, x: float, y: float) -> Optional[str]:
+        """Konumun yasakli blgede olup olmadigini kontrol eder."""
+        for xmin, ymin, xmax, ymax, name in self.restricted_zones:
+            if xmin <= x <= xmax and ymin <= y <= ymax:
+                return name
+        return None
 
     # ─────────────────────────────────────
-    #  Risk Skoru Hesaplama Modülü
+    #  Risk Skoru Hesaplama (Bayesyen Füzyon Benzetimi)
     # ─────────────────────────────────────
 
     # ─────────────────────────────────────
@@ -375,6 +390,13 @@ class SafetyAgentNode(Node):
         risk = self._compute_risk_score(sensor_data)
         profile.add_risk(risk)
 
+        # Geofence Kontrolu
+        violation = self._check_geofence(loc.get("x", 0.0), loc.get("y", 0.0))
+        if violation and not self.evacuation_active:
+            self.get_logger().fatal(f"[Safety Agent] GEOFENCE IHLALI: {worker_id} -> {violation} bölgesinde!")
+            self._initiate_full_evacuation([worker_id])
+            return
+
         self.get_logger().warning(
             f"[Safety Agent] {worker_id} | Alarm: {alarm_level} | "
             f"Risk: {risk:.1f}/100 | "
@@ -406,6 +428,12 @@ class SafetyAgentNode(Node):
             data.get("worker_y", 0.0),
             data.get("worker_depth", 0.0),
         )
+
+        # Geofence Kontrolu (Raw data)
+        violation = self._check_geofence(data.get("worker_x", 0.0), data.get("worker_y", 0.0))
+        if violation and not self.evacuation_active:
+            self.get_logger().fatal(f"[Safety Agent] GEOFENCE IHLALI (Raw): {worker_id} -> {violation}!")
+            self._initiate_full_evacuation([worker_id])
 
     def summary_callback(self, msg: String):
         """İSG özet verilerini al (loglama amaçlı)."""

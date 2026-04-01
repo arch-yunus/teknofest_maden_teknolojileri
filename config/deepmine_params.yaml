@@ -120,6 +120,12 @@ deepmine_safety_agent:
     evacuation_walk_speed_mps: 0.8    # Personel yürüme hızı tahmini (m/s)
     status_report_interval_sec: 30.0  # Durum raporu yayın sıklığı
 
+    # Geofence Yasaklı Bölgeler (x_min, y_min, x_max, y_max)
+    restricted_zones:
+      - [20.0, 10.0, 40.0, 30.0, "PATLATMA_SAHASI"]
+      - [70.0, 60.0, 90.0, 80.0, "GOCUK_RISKLI_ALAN"]
+      - [10.0, 80.0, 30.0, 95.0, "SINIRLI_HAVALANDIRMA"]
+
 # ─────────────────────────────────────────────────────────────────
 #  EKF Fusion Node Parametreleri
 # ─────────────────────────────────────────────────────────────────
@@ -149,6 +155,16 @@ deepmine_drone_inspector:
     mission_radius: 50.0              # m
     battery_threshold: 20.0           # %
     scan_altitude: 2.5                # m
+
+# ─────────────────────────────────────────────────────────────────
+#  Ventilation Manager Parametreleri
+# ─────────────────────────────────────────────────────────────────
+deepmine_ventilation_manager:
+  ros__parameters:
+    min_fan_speed: 20.0               # %
+    max_fan_speed: 100.0              # %
+    ch4_critical_threshold: 2.0       # % LEL
+    co_critical_threshold: 30.0       # ppm
 
 # ─────────────────────────────────────────────────────────────────
 #  AI Model Parametreleri (Python betikleri için ortam değişkenleri)
