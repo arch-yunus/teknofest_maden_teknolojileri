@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  deepmine_system:
+    build: .
+    image: deepmine_ai:latest
+    container_name: deepmine_ai_container
+    network_mode: host
+    privileged: true
+    volumes:
+      - .:/ros2_ws/src/teknofest_maden_teknolojileri
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    environment:
+      - DISPLAY=$DISPLAY
+    stdin_open: true
+    tty: true
+    command: ros2 launch teknofest_maden_teknolojileri deepmine_system_launch.py
+
+  # Visualization and Debug (RVIZ2)
+  rviz2:
+    image: deepmine_ai:latest
+    container_name: deepmine_rviz
+    network_mode: host
+    depends_on:
+      - deepmine_system
+    environment:
+      - DISPLAY=$DISPLAY
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    command: rviz2

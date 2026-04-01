@@ -170,35 +170,52 @@ $$\vec{F}_{total} = \underbrace{k_{att} \cdot \hat{d}_{goal}}_{\text{Çekici}} +
 
 ---
 
-## 💻 Kurulum ve Çalıştırma
+## 💻 Kapsamlı Kurulum ve Çalıştırma
 
-### Gereksinimler
+DeepMine AI, farklı geliştirme ortamları için optimize edilmiş kurulum seçenekleri sunar.
 
-```
-OS       : Ubuntu 22.04 LTS
-ROS 2    : Humble Hawksbill
-Python   : 3.10+
-Derleme  : colcon, ament-cmake
-```
-
-### 1. Python Bağımlılıkları
+### 🐳 1. Docker ile Hızlı Kurulm (Önerilen)
+Tüm bağımlılıkların (ROS 2, TensorFlow vb.) hazır olduğu izole bir ortamda çalıştırmak için:
 
 ```bash
-pip install -r requirements.txt
+# Servisleri ayağa kaldır
+docker-compose up --build
+
+# Başka bir terminalde rclpy komutlarını denemek için
+docker exec -it deepmine_ai_container /bin/bash
 ```
 
-### 2. ROS 2 Workspace Derleme
+### 🐧 2. Ubuntu 22.04 + ROS 2 Humble (Yerel Kurulum)
+Kendi sisteminize kurmak için hazırladığımız otomatize betiği kullanabilirsiniz:
 
 ```bash
-# Workspace kökünde
-colcon build --symlink-install
+# Kurulum betiğini çalıştır (Tüm bağımlılıkları yükler ve derler)
+chmod +x scripts/install_all.sh
+./scripts/install_all.sh
+
+# Ortamı yükle
 source install/setup.bash
+
+# Sistemi başlat
+ros2 launch teknofest_maden_teknolojileri deepmine_system_launch.py
 ```
 
-### 3. Tüm Sistemi Başlat
+### 🪟 3. Windows (Sadece AI Geliştirme)
+ROS 2 gerektirmeyen AI analizlerini Windows üzerinde test etmek için:
+
+```powershell
+# PowerShell ile sanal ortamı kur
+.\scripts\setup_windows.ps1
+
+# Ortamı aktif et
+.\venv\Scripts\Activate.ps1
+```
+
+### 🔍 4. Kurulum Doğrulama
+Herhangi bir kurulumdan sonra sistem sağlığını kontrol etmek için:
 
 ```bash
-ros2 launch teknofest_maden_teknolojileri deepmine_system_launch.py
+python3 scripts/verify_env.py
 ```
 
 ### 4. AI Rezerv Analizi (Bağımsız)
