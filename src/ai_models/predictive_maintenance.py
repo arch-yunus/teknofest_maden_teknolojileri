@@ -136,6 +136,35 @@ class PredictiveMaintenance:
         return self.anomaly_model.predict(X)[0] == -1
 
 # ─────────────────────────────────────────────
+#  Yardımcı Fonksiyonlar
+# ─────────────────────────────────────────────
+
+def generate_machine_data(n_machines: int = 5, samples_per_machine: int = 100) -> pd.DataFrame:
+    """Eğitim için sentetik makine verisi üretir."""
+    data = []
+    for m_id in range(n_machines):
+        # Her makine için rastgele bir 'sağlık' durumu
+        health = 100.0
+        for s in range(samples_per_machine):
+            # Arızaya yaklaştıkça değerler bozulur
+            degradation = (samples_per_machine - s) / samples_per_machine
+            temp = 40 + (1.0 - degradation) * 50 + np.random.normal(0, 2)
+            vib = 1.0 + (1.0 - degradation) * 5.0 + np.random.normal(0, 0.5)
+            pres = 100 + (1.0 - degradation) * 80 + np.random.normal(0, 5)
+            rpm = 1500 - (1.0 - degradation) * 200 + np.random.normal(0, 20)
+            rul = samples_per_machine - s
+            
+            data.append({
+                "machine_id": f"M{m_id:03d}",
+                "temp_c": temp,
+                "vibration_rms": vib,
+                "pressure_bar": pres,
+                "motor_rpm": rpm,
+                "RUL": float(rul)
+            })
+    return pd.DataFrame(data)
+
+# ─────────────────────────────────────────────
 #  Main
 # ─────────────────────────────────────────────
 

@@ -129,6 +129,7 @@ deepmine_ekf_fusion:
     odom_noise: 0.05
     imu_noise: 0.01
     lidar_noise: 0.001
+    mahalanobis_threshold: 7.815      # 3 DOF için %95 güven aralığı Chi-Square eşiği
 
 # ─────────────────────────────────────────────────────────────────
 #  Water Well Automation Parametreleri
@@ -138,6 +139,7 @@ deepmine_water_well_automation:
     critical_level: 85.0              # % - Tahliye/Tam pompa
     warning_level: 70.0               # % - Önleyici pompa
     pump_capacity_lps: 15.0           # Litre/Saniye
+    flood_prediction_window_sec: 600.0 # Tahmin penceresi (10 dk)
 
 # ─────────────────────────────────────────────────────────────────
 #  Drone Inspector Node Parametreleri
@@ -165,3 +167,4 @@ ai_model_config:
   models_dir: "models"
   min_ore_grade: 1.5                  # Üretim optimizasyonu için minimum tenör
   max_extraction_depth: 100           # Üretim optimizasyonu için maksimum derinlik
+  production_top_n: 20                # OMP rotası için hedef sayısı

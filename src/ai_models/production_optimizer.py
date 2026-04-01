@@ -15,6 +15,7 @@ class ProductionOptimizer:
         self.reserve_file = Path(reserve_file)
         self.df = None
         self.optimal_plan = None
+        self.mine_entrance = {"x": 0.0, "y": 0.0, "z": 0.0}
 
     def load_data(self):
         if not self.reserve_file.exists():
@@ -23,67 +24,108 @@ class ProductionOptimizer:
         self.df = pd.read_csv(self.reserve_file)
         return True
 
-    def optimize(self, min_grade=1.5, max_depth=100):
+    def optimize(self, min_grade=1.5, max_depth=100, top_n=15):
         """
-        Calculates the optimal extraction strategy.
-        Logic: Prioritize high grade, low depth, and low uncertainty regions.
+        Calculates the Optimal Mining Path (OMP).
+        Logic: Use a greedy approach to visit the highest value points 
+               starting from the mine entrance.
         """
         if self.df is None:
             return None
         
-        # Filter by basic constraints
+        # 1. Selection & Scoring
         filtered = self.df[
             (self.df['predicted_grade_pct'] >= min_grade) & 
             (self.df['z_depth_m'] <= max_depth)
         ].copy()
         
-        # Calculate 'Value Score'
-        # Value = Grade / (Depth * Uncertainty) - simplified economic model
-        filtered['value_score'] = (filtered['predicted_grade_pct'] * 10) / (
-            (filtered['z_depth_m'] + 10) * (filtered['uncertainty_pct'] + 1)
+        if filtered.empty:
+            print("No points meet the grade/depth constraints.")
+            return None
+
+        # Value Score = Grade / (Depth * Uncertainty)
+        filtered['value_score'] = (filtered['predicted_grade_pct'] * 20) / (
+            (filtered['z_depth_m'] + 5) * (filtered['uncertainty_pct'] + 1)
         )
         
-        # Sort by value score to get the production sequence
-        self.optimal_plan = filtered.sort_values(by='value_score', ascending=False)
+        # Get top targets
+        targets = filtered.sort_values(by='value_score', ascending=False).head(top_n).copy()
+        targets['visited'] = False
         
+        # 2. Path Planning (Greedy OMP)
+        current_pos = np.array([self.mine_entrance['x'], self.mine_entrance['y'], self.mine_entrance['z']])
+        path = []
+        
+        for _ in range(len(targets)):
+            best_idx = -1
+            best_score = -1e9
+            
+            for idx, row in targets.iterrows():
+                if row['visited']: continue
+                
+                target_pos = np.array([row['x'], row['y'], row['z_depth_m']])
+                dist = np.linalg.norm(current_pos - target_pos)
+                
+                # Composite Score: Value / (Distance + 1)
+                comp_score = row['value_score'] / (dist + 5.0)
+                
+                if comp_score > best_score:
+                    best_score = comp_score
+                    best_idx = idx
+            
+            if best_idx != -1:
+                targets.at[best_idx, 'visited'] = True
+                row = targets.loc[best_idx]
+                path.append(row.to_dict())
+                current_pos = np.array([row['x'], row['y'], row['z_depth_m']])
+        
+        self.optimal_plan = pd.DataFrame(path)
         return self.optimal_plan
 
     def generate_report(self, output_file="docs/production_plan.json"):
-        if self.optimal_plan is None:
+        if self.optimal_plan is None or self.optimal_plan.empty:
             print("No plan optimized yet.")
             return
             
-        top_targets = self.optimal_plan.head(20).to_dict(orient='records')
-        
         report = {
             "project": "DeepMine AI - Production Optimization",
-            "summary": {
-                "total_high_value_points": len(self.optimal_plan),
-                "avg_grade_pct": float(self.optimal_plan['predicted_grade_pct'].mean()),
-                "max_value_point": top_targets[0] if top_targets else None
+            "metadata": {
+                "timestamp": datetime.now().isoformat(),
+                "algorithm": "Greedy-Score OMP",
+                "mine_entrance": self.mine_entrance
             },
-            "extraction_sequence": top_targets
+            "summary": {
+                "total_points": len(self.optimal_plan),
+                "avg_predicted_grade": float(self.optimal_plan['predicted_grade_pct'].mean()),
+                "est_total_ore_value": float(self.optimal_plan['predicted_grade_pct'].sum() * 100) # Dummy multiplier
+            },
+            "extraction_sequence": self.optimal_plan.to_dict(orient='records')
         }
         
-        with open(output_file, 'w') as f:
+        # Save JSON
+        output_path = Path(output_file)
+        output_path.parent.mkdir(exist_ok=True)
+        with open(output_path, 'w') as f:
             json.dump(report, f, indent=4)
         
         print(f"✅ Production Plan saved to {output_file}")
-        print(f"Top Target Found at X:{top_targets[0]['x']} Y:{top_targets[0]['y']} Z:{top_targets[0]['z_depth_m']} | Grade: {top_targets[0]['predicted_grade_pct']:.2f}%")
+        first = self.optimal_plan.iloc[0]
+        print(f"OMP Start Point (X:{first['x']} Y:{first['y']} Z:{first['z_depth_m']}) | Score: {first['value_score']:.2f}")
 
 def main():
     parser = argparse.ArgumentParser(description="DeepMine AI Production Optimizer")
     parser.add_argument("--min-grade", type=float, default=1.5)
     parser.add_argument("--max-depth", type=int, default=100)
+    parser.add_argument("--top-n", type=int, default=20)
     args = parser.parse_args()
 
     optimizer = ProductionOptimizer()
     if optimizer.load_data():
-        optimizer.optimize(min_grade=args.min_grade, max_depth=args.max_depth)
+        print("  [Optimizer] High-value targets are being calculated...")
+        optimizer.optimize(min_grade=args.min_grade, max_depth=args.max_depth, top_n=args.top_n)
         optimizer.generate_report()
     else:
-        print("Falling back to generating synthetic results for demonstration...")
-        # (Real implementation would end here, but for TEKNOFEST demos we might generate dummy if file missing)
+        print("Error: Could not load reserve data. Please run reserve_predictor first.")
 
 if __name__ == "__main__":
     main()
