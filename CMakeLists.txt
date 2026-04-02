@@ -81,6 +81,11 @@ install(PROGRAMS
   src/sensor_hub/isg_monitor_node.py
   src/sensor_hub/safety_agent.py
   src/sensor_hub/alert_dashboard.py
+  src/sensor_hub/mission_logger.py
+  src/sensor_hub/ventilation_manager.py
+  src/sensor_hub/water_well_automation.py
+  src/sensor_hub/drone_inspector_node.py
+  src/autonomous_nav/src/ekf_fusion_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

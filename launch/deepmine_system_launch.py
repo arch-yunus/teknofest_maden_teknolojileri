@@ -323,6 +323,8 @@ def generate_launch_description():
         water_well_node,
         drone_node,
         pm_node,
+        logger_node,
+        ventilation_node,
         # Hazır bildirimi
         log_ready,
     ])
